@@ -1,0 +1,31 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+import fs from 'fs';
+import ts from '@rollup/plugin-typescript';
+
+import cjs from '@rollup/plugin-commonjs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// console.log('=== dirname ===', __dirname, '=== filename ===', __filename);
+const pkgPath = path.resolve(__dirname, '../../packages');
+const distPath = path.resolve(__dirname, '../../dist/node_modules');
+
+export function resolvePkgPath(pkgName, isDist) {
+  if (isDist) {
+    return `${distPath}/${pkgName}`;
+  }
+  return `${pkgPath}/${pkgName}`;
+}
+
+export function getPkgJson(pkgName) {
+  // 包路径
+  const pkgPath = `${resolvePkgPath(pkgName)}/package.json`;
+  const str = fs.readFileSync(pkgPath, 'utf-8');
+  return JSON.parse(str);
+}
+
+export function getBaseRollupPlugins({ typescript = {} } = {}) {
+  return [cjs(), ts(typescript)];
+}
